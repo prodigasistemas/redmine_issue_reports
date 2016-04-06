@@ -34,7 +34,7 @@ class ProdigaIssueReport < ActiveRecord::Base
 
   def self.get_summary(project_id)
     Issue.connection.select_all("
-      SELECT cv.value AS severity, ist.name AS status, count(*)
+      SELECT cv.value AS severity, ist.name AS status, count(*) AS count
       FROM issues AS i
       INNER JOIN issue_statuses AS ist ON (ist.id = i.status_id)
       INNER JOIN custom_values AS cv ON (cv.customized_id = i.id)
