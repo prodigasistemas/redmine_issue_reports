@@ -17,14 +17,16 @@ class ProdigaIssueReport < ActiveRecord::Base
     results = get_summary(project_id)
 
     results.each do |result|
-      severity = result['severity'].to_i
+      if !result['severity'].blank?
+        severity = result['severity'].to_i
 
-      status = 'resolved'
-      if result['status'] != 'Fechada'
-        status = 'unresolved'
+        status = 'resolved'
+        if result['status'] != 'Fechada'
+          status = 'unresolved'
+        end
+
+        occurrences[severity][status] = occurrences[severity][status] + result['count'].to_i
       end
-
-      occurrences[severity][status] = occurrences[severity][status] + result['count'].to_i
     end
 
     occurrences
