@@ -1,0 +1,20 @@
+<h2>Acompanhamento das ocorrências</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Grau de severidade</th>
+      <th>Resolvidas</th>
+      <th>Não resolvidas</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% 1.upto(5) do |occurrence| %>
+    <tr>
+      <td><%= occurrence %></td>
+      <td><%= @results[occurrence]['resolved'] %></td>
+      <td><%= @results[occurrence]['unresolved'] %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
