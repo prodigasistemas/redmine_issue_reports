@@ -1,20 +1,80 @@
 <h2>Acompanhamento das ocorrências</h2>
 
-<table>
-  <thead>
-    <tr>
-      <th>Grau de severidade</th>
-      <th>Resolvidas</th>
-      <th>Não resolvidas</th>
-    </tr>
-  </thead>
-  <tbody>
-  <% 1.upto(5) do |occurrence| %>
-    <tr>
-      <td><%= occurrence %></td>
-      <td><%= @results[occurrence]['resolved'] %></td>
-      <td><%= @results[occurrence]['unresolved'] %></td>
-    </tr>
+<div class="box tabular">
+  <%= form_tag project_issue_reports_path do %>
+    <p>
+      <%= label_tag(:issue_reports_start_date, "Data inicial") %>
+      <%= text_field_tag(:issue_reports_start_date, '', size: 10, required: true) %>
+      <%= calendar_for('issue_reports_start_date') %>
+    </p>
+
+    <p>
+      <%= label_tag(:issue_reports_due_date, "Data final") %>
+      <%= text_field_tag(:issue_reports_due_date, '', size: 10, required: true) %>
+      <%= calendar_for('issue_reports_due_date') %>
+    </p>
+
+    <p><%= submit_tag("Gerar relatório") %></p>
   <% end %>
-  </tbody>
-</table>
+</div>
+
+<% if @results %>
+  <div class="issues box">
+    <h3>
+      Acompanhamento das ocorrências - período de:
+      <%= format_date(params[:issue_reports_start_date]) %>
+      à
+      <%= format_date(params[:issue_reports_due_date]) %>
+    </h3>
+    <table class="list issue-report">
+      <thead>
+        <tr>
+          <th rowspan="2">Grau de severidade</th>
+          <th colspan="2">Resolvidas</th>
+          <th colspan="2">Não resolvidas</th>
+          <th>Total</th>
+        </tr>
+        <tr>
+          <th>Qtd.</th>
+          <th>%</th>
+          <th>Qtd.</th>
+          <th>%</th>
+          <th>Qtd.</th>
+        </tr>
+      </thead>
+      <tbody>
+      <%
+        total_resolved, total_unresolved, grand_total = 0, 0, 0
+        1.upto(5) do |occurrence|
+          resolved = @results[occurrence]['resolved']
+          unresolved = @results[occurrence]['unresolved']
+          total = resolved + unresolved
+          total_resolved += resolved
+          total_unresolved += unresolved
+          grand_total += total
+      %>
+        <tr class="<%= cycle("odd", "even") %>">
+          <td><%= occurrence %></td>
+          <td><%= resolved %></td>
+          <td><%= resolved > 0 ? (resolved.to_f / total.to_f * 100).round : 0 %></td>
+          <td><%= unresolved %></td>
+          <td><%= unresolved > 0 ? (unresolved.to_f / total.to_f * 100).round : 0 %></td>
+          <td><%= total %></td>
+        </tr>
+      <% end %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Total</th>
+          <th><%= total_resolved %></th>
+          <th></th>
+          <th><%= total_unresolved %></th>
+          <th></th>
+          <th><%= grand_total %></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+<% end %>
+
+<% include_calendar_headers_tags %>

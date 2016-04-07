@@ -10,6 +10,8 @@ Redmine::Plugin.register :redmine_issue_reports do
     permission :index_reports, :issue_reports => :index
   end
 
+  permission :issue_reports, { :issue_reports => [:create] }, :public => true
+
   menu :project_menu,
      :issue_reports,
      { :controller => 'issue_reports', :action => 'index' },

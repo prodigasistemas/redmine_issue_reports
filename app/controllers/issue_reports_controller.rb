@@ -5,9 +5,16 @@ class IssueReportsController < ApplicationController
   before_filter :authorize
 
   def index
-    @results = ProdigaIssueReport.summary(@project.id)
+
   end
 
   def create
+    @results = ProdigaIssueReport.summary(
+      @project.id,
+      params[:issue_reports_start_date],
+      params[:issue_reports_due_date]
+    )
+
+    render :index
   end
 end
