@@ -75,6 +75,64 @@
       </tfoot>
     </table>
   </div>
+
+  <div class="issues box">
+    <h3>Ocorrências resolvidas</h3>
+    <table class="list issue-report">
+      <thead>
+        <tr>
+          <th>Severidade</th>
+          <th>Assunto</th>
+          <th>Estado</th>
+          <th>Início</th>
+          <th>Término</th>
+          <th>Horas</th>
+          <!--<th>Histórico</th>-->
+        </tr>
+      </thead>
+      <tbody>
+      <% @resolved_issues.each do |issue| %>
+        <tr class="<%= cycle("odd", "even") %>">
+          <td><%= issue.severity %></td>
+          <td class="subject"><%= link_to issue.subject, issue_path(issue) %></td>
+          <td><%= issue.status %></td>
+          <td><%= format_date(issue.start_date) %></td>
+          <td><%= format_date(issue.due_date) %></td>
+          <td><%= @resolved_details[:hours][issue.id] %></td>
+          <!--<td class="subject"><%#= @resolved_details[:histories][issue.id].to_s.html_safe %></td>-->
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+
+    <div class="issues box">
+    <h3>Ocorrências não resolvidas</h3>
+    <table class="list issue-report">
+      <thead>
+        <tr>
+          <th>Severidade</th>
+          <th>Assunto</th>
+          <th>Estado</th>
+          <th>Início</th>
+          <!--<th>Horas</th>-->
+          <!--<th>Histórico</th>-->
+        </tr>
+      </thead>
+      <tbody>
+      <% @unresolved_issues.each do |issue| %>
+        <tr class="<%= cycle("odd", "even") %>">
+          <td><%= issue.severity %></td>
+          <td class="subject"><%= link_to issue.subject, issue_path(issue) %></td>
+          <td><%= issue.status %></td>
+          <td><%= format_date(issue.start_date) %></td>
+          <!--<td><%#= @unresolved_details[:hours][issue.id] %></td>-->
+          <!--<td class="subject"><%#= @unresolved_details[:histories][issue.id].to_s.html_safe %></td>-->
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
 <% end %>
 
 <% include_calendar_headers_tags %>
