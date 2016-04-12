@@ -82,27 +82,32 @@ class ProdigaIssueReport < ActiveRecord::Base
         end
 
         time = 0
-        (journals.first.created_on.to_date..journals.last.created_on.to_date).each do |date|
+        (issue.created_on.to_date..journals.last.created_on.to_date).each do |date|
           if !date.saturday? && !date.sunday? && !date.holiday?(:br)
             time += 8
           end
         end
 
-        first_hour = journals.first.created_on.to_time.to_s[11..12].to_i
+        first_hour = issue.created_on.to_time.to_s[11..12].to_i
+
+        last_hour = journals.last.created_on.to_time.to_s[11..12].to_i
 
         first_status = issue_status[journals.first.details.first.value]
 
-        if first_hour < 18
-          if first_status.downcase == 'fechada'
-            time = first_hour - 8
-          else
-            time -= 18 - first_hour
+        if issue.created_on.to_date == journals.last.created_on.to_date
+          calc = last_hour - first_hour
+          time = calc > 0 ? calc : 1
+        else
+          if first_hour < 18
+            if first_status.downcase == 'fechada'
+              time = first_hour - 8
+            else
+              time -= 18 - first_hour
+            end
           end
         end
 
-        if journals.first.created_on.to_date != journals.last.created_on.to_date
-          last_hour = journals.last.created_on.to_time.to_s[11..12].to_i
-
+        if issue.created_on.to_date != journals.last.created_on.to_date
           time -= 18 - last_hour if last_hour < 18
         end
 
