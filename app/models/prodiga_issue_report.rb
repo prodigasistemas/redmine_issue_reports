@@ -63,24 +63,15 @@ class ProdigaIssueReport < ActiveRecord::Base
   end
 
   def self.details(issues)
-    issue_status = {}
-    IssueStatus.all.each { |issue| issue_status[issue.id.to_s] = issue.name }
+    issue_status, histories, hours = {}, {}, {}
 
-    histories, hours = {}, {}
+    IssueStatus.all.each { |issue| issue_status[issue.id.to_s] = issue.name }
 
     issues.each do |issue|
       journals = issue.journals.joins(:details).includes(:details)
                       .where("journal_details.prop_key = 'status_id'")
                       .order(:created_on)
       if !journals.blank?
-        details = ""
-        journals.each do |journal|
-          journal.details.each do |detail|
-            details += "#{format_time(journal.created_on)} - #{issue_status[detail.value]}<br/>"
-          end
-          histories[issue.id] = details
-        end
-
         time = 0
         (issue.created_on.to_date..journals.last.created_on.to_date).each do |date|
           if !date.saturday? && !date.sunday? && !date.holiday?(:br)
@@ -111,7 +102,36 @@ class ProdigaIssueReport < ActiveRecord::Base
           time -= 18 - last_hour if last_hour < 18
         end
 
-        hours[issue.id] = time
+        details = ''
+        suspended_starting_date = nil
+        discount = 0
+
+        journals.each do |journal|
+          journal.details.each do |detail|
+            old_value = issue_status[detail.old_value]
+            new_value = issue_status[detail.value]
+
+            details += "#{format_time(journal.created_on)} - #{new_value}<br/>"
+
+            suspended_starting_date = journal.created_on if new_value.downcase == 'suspensa'
+
+            if old_value.downcase == 'suspensa' && !suspended_starting_date.nil?
+              suspended_end_date = journal.created_on
+
+              (suspended_starting_date.to_date..suspended_end_date.to_date).each do |date|
+                if !date.saturday? && !date.sunday? && !date.holiday?(:br)
+                  discount += 8
+                end
+              end
+
+              suspended_starting_date = nil
+            end
+          end
+
+          histories[issue.id] = details
+        end
+
+        hours[issue.id] = time - discount
       end
     end
 
