@@ -76,6 +76,7 @@
     </table>
   </div>
 
+  <% unless @resolved_issues.blank? %>
   <div class="issues box">
     <h3>Ocorrências resolvidas</h3>
     <table class="list issue-report">
@@ -105,8 +106,10 @@
       </tbody>
     </table>
   </div>
+  <% end %>
 
-    <div class="issues box">
+  <% unless @unresolved_issues.blank? %>
+  <div class="issues box">
     <h3>Ocorrências não resolvidas</h3>
     <table class="list issue-report">
       <thead>
@@ -133,6 +136,7 @@
       </tbody>
     </table>
   </div>
+  <% end %>
 <% end %>
 
 <% include_calendar_headers_tags %>
