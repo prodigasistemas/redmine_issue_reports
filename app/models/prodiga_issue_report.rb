@@ -88,9 +88,9 @@ class ProdigaIssueReport < ActiveRecord::Base
           end
         end
 
-        first_hour = issue.created_on.to_time.to_s[11..12].to_i
+        first_hour = issue.created_on.to_time.hour
 
-        last_hour = journals.last.created_on.to_time.to_s[11..12].to_i
+        last_hour = journals.last.created_on.to_time.hour
 
         first_status = issue_status[journals.first.details.first.value]
 
