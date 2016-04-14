@@ -96,6 +96,7 @@ class ProdigaIssueReport < ActiveRecord::Base
 
         if issue.created_on.to_date != journals.last.created_on.to_date
           time -= 18 - last_hour if last_hour < 18
+          time -= 2 if last_hour < 12
         end
 
         details = ''
