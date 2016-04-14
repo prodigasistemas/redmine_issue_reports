@@ -72,12 +72,7 @@ class ProdigaIssueReport < ActiveRecord::Base
                       .where("journal_details.prop_key = 'status_id'")
                       .order(:created_on)
       if !journals.blank?
-        time = 0
-        (issue.created_on.to_date..journals.last.created_on.to_date).each do |date|
-          if !date.saturday? && !date.sunday? && !date.holiday?(:br)
-            time += 8
-          end
-        end
+        time = hours_period(issue.created_on, journals.last.created_on)
 
         first_hour = issue.created_on.to_time.hour
 
@@ -87,6 +82,7 @@ class ProdigaIssueReport < ActiveRecord::Base
 
         if issue.created_on.to_date == journals.last.created_on.to_date
           calc = last_hour - first_hour
+          calc -= 2 if first_hour < 12
           time = calc > 0 ? calc : 1
         else
           if first_hour < 18
@@ -118,11 +114,7 @@ class ProdigaIssueReport < ActiveRecord::Base
             if old_value.downcase == 'suspensa' && !suspended_starting_date.nil?
               suspended_end_date = journal.created_on
 
-              (suspended_starting_date.to_date..suspended_end_date.to_date).each do |date|
-                if !date.saturday? && !date.sunday? && !date.holiday?(:br)
-                  discount += 8
-                end
-              end
+              discount = hours_period(suspended_starting_date, suspended_end_date)
 
               suspended_starting_date = nil
             end
@@ -136,5 +128,15 @@ class ProdigaIssueReport < ActiveRecord::Base
     end
 
     {hours: hours, histories: histories}
+  end
+
+  def self.hours_period(start_date, due_date)
+    hours = 0
+    (start_date.to_date..due_date.to_date).each do |date|
+      if !date.saturday? && !date.sunday? && !date.holiday?(:br)
+        hours += 8
+      end
+    end
+    hours
   end
 end
