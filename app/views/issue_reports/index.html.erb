@@ -4,13 +4,13 @@
   <%= form_tag project_issue_reports_path do %>
     <p>
       <%= label_tag(:issue_reports_start_date, "Data inicial") %>
-      <%= text_field_tag(:issue_reports_start_date, '', size: 10, required: true) %>
+      <%= text_field_tag(:issue_reports_start_date, params[:issue_reports_start_date], size: 10, required: true) %>
       <%= calendar_for('issue_reports_start_date') %>
     </p>
 
     <p>
       <%= label_tag(:issue_reports_due_date, "Data final") %>
-      <%= text_field_tag(:issue_reports_due_date, '', size: 10, required: true) %>
+      <%= text_field_tag(:issue_reports_due_date, params[:issue_reports_due_date], size: 10, required: true) %>
       <%= calendar_for('issue_reports_due_date') %>
     </p>
 
@@ -99,7 +99,7 @@
           <td><%= issue.status %></td>
           <td><%= format_date(issue.created_on) %></td>
           <td><%= format_date(issue.due_date) %></td>
-          <td><%= @resolved_details[:hours][issue.id] %></td>
+          <td><%= format_hour(@resolved_details[:hours][issue.id]) %></td>
           <!--<td class="subject"><%#= @resolved_details[:histories][issue.id].to_s.html_safe %></td>-->
         </tr>
       <% end %>
