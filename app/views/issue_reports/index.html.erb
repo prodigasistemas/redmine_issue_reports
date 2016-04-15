@@ -45,7 +45,7 @@
       <tbody>
       <%
         total_resolved, total_unresolved, grand_total = 0, 0, 0
-        1.upto(5) do |occurrence|
+        1.upto(@config.severity_number.to_i) do |occurrence|
           resolved = @results[occurrence]['resolved']
           unresolved = @results[occurrence]['unresolved']
           total = resolved + unresolved
@@ -56,9 +56,9 @@
         <tr class="<%= cycle("odd", "even") %>">
           <td><%= occurrence %></td>
           <td><%= resolved %></td>
-          <td><%= resolved > 0 ? (resolved.to_f / total.to_f * 100).round : 0 %></td>
+          <td><%= percent_format(resolved, total) %></td>
           <td><%= unresolved %></td>
-          <td><%= unresolved > 0 ? (unresolved.to_f / total.to_f * 100).round : 0 %></td>
+          <td><%= percent_format(unresolved, total) %></td>
           <td><%= total %></td>
         </tr>
       <% end %>

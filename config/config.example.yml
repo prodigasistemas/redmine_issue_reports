@@ -1,0 +1,12 @@
+locale: br
+severity:
+  number: 5
+  name: Grau de severidade
+status:
+  closed: fechada
+  suspended: suspensa
+hours:
+  daily: 8
+  interval: 2
+  break_time: 12
+  closing_time: 18

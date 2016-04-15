@@ -7,6 +7,8 @@ end
 class ProdigaIssueReport < ActiveRecord::Base
   unloadable
 
+  @@config = ProdigaConfig.new
+
   def self.summary(project_id, start_date, due_date)
     process_summary(project_id, start_date, due_date)
   end
@@ -14,7 +16,7 @@ class ProdigaIssueReport < ActiveRecord::Base
   def self.process_summary(project_id, start_date, due_date)
     occurrences = {}
 
-    1.upto(5) do |severity|
+    1.upto(@@config.severity_number.to_i) do |severity|
       occurrences[severity] = {'resolved' => 0, 'unresolved' => 0}
     end
 
@@ -40,7 +42,7 @@ class ProdigaIssueReport < ActiveRecord::Base
         INNER JOIN issue_statuses AS ist ON (ist.id = i.status_id)
         INNER JOIN custom_values AS cv ON (cv.customized_id = i.id)
         INNER JOIN custom_fields AS cf ON (cf.id = cv.custom_field_id)
-        WHERE i.project_id = ? AND cf.name = 'Grau de severidade' AND
+        WHERE i.project_id = ? AND cf.name = '#{@@config.severity_name}' AND
         i.#{filter} BETWEEN ? AND ? AND ist.is_closed = ? AND cv.value != ''
         GROUP BY cv.value, ist.name
         ORDER BY cv.value", project_id, start_date, due_date, is_closed])
@@ -55,7 +57,7 @@ class ProdigaIssueReport < ActiveRecord::Base
         INNER JOIN issue_statuses AS ist ON (ist.id = i.status_id)
         INNER JOIN custom_values AS cv ON (cv.customized_id = i.id)
         INNER JOIN custom_fields AS cf ON (cf.id = cv.custom_field_id)
-        WHERE i.project_id = ? AND cf.name = 'Grau de severidade' AND
+        WHERE i.project_id = ? AND cf.name = '#{@@config.severity_name}' AND
         i.#{filter} BETWEEN ? AND ? AND ist.is_closed = ? AND cv.value != ''
         ORDER BY cv.value, i.#{filter}",
         project_id, start_date, due_date, is_closed])
@@ -86,9 +88,9 @@ class ProdigaIssueReport < ActiveRecord::Base
 
             details += "#{format_time(journal.created_on)} - #{new_value}<br/>"
 
-            suspended_starting_date = journal.created_on if new_value.downcase == 'suspensa'
+            suspended_starting_date = journal.created_on if new_value.downcase == @@config.status_suspended
 
-            if old_value.downcase == 'suspensa' && !suspended_starting_date.nil?
+            if old_value.downcase == @@config.status_suspended && !suspended_starting_date.nil?
               suspended_end_date = journal.created_on
 
               suspended_time = calculate_time(suspended_starting_date, suspended_end_date)
@@ -112,7 +114,9 @@ class ProdigaIssueReport < ActiveRecord::Base
   def self.hours_period(start_date, due_date)
     hours = 0.0
     (start_date.to_date..due_date.to_date).each do |date|
-      hours += 8.0 if !date.saturday? && !date.sunday? && !date.holiday?(:br)
+      if !date.saturday? && !date.sunday? && !date.holiday?(@@config.locale.to_sym)
+        hours += @@config.daily_hours.to_f
+      end
     end
     hours
   end
@@ -158,18 +162,18 @@ class ProdigaIssueReport < ActiveRecord::Base
 
     if first.to_date == last.to_date
       time = subtract_time(last_time, first_time)
-      discount += 2.0 if first_time.to_i < 12
+      discount += @@config.inverval_hours.to_f if first_time.to_i < @@config.break_time.to_i
     else
-      if first_time.to_i < 18
-        if first_status.downcase == 'fechada'
-          time = subtract_time(first_time, 8.0)
+      if first_time.to_i < @@config.closing_time
+        if first_status.downcase == @@config.status_closed
+          time = subtract_time(first_time, @@config.daily_hours.to_f)
         else
-          discount = sum_time(discount, subtract_time(18.0, first_time))
+          discount = sum_time(discount, subtract_time(@@config.closing_time.to_f, first_time))
         end
       end
 
-      discount = sum_time(discount, subtract_time(18.0, last_time)) if last_time.to_i < 18
-      discount += 2.0 if last_time.to_i < 12
+      discount = sum_time(discount, subtract_time(@@config.closing_time.to_f, last_time)) if last_time.to_i < @@config.closing_time.to_i
+      discount += @@config.inverval_hours.to_f if last_time.to_i < @@config.break_time.to_i
     end
 
     subtract_time(time, discount)

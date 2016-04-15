@@ -16,12 +16,12 @@ class IssueReportsController < ApplicationController
     )
 
     @resolved_issues = issues_list('due_date', true)
-
     @resolved_details = ProdigaIssueReport.details(@resolved_issues)
 
     @unresolved_issues = issues_list('start_date', false)
-
     @unresolved_details = ProdigaIssueReport.details(@unresolved_issues)
+
+    @config = ProdigaConfig.new
 
     render :index
   end

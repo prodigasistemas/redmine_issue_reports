@@ -14,8 +14,11 @@ you can do so by changing into your plugin directory and issuing a command like
 3. Update your gems
         bundle install
 
-4. Restart Redmine
+4. Copy config file
+        cp config/config.example.yml config/config.yml
 
-5. Go to one of your project settings. Click on the Modules tab.
+5. Restart Redmine
+
+6. Go to one of your project settings. Click on the Modules tab.
 You should see the "Issue reports" module at the end of the modules list.
 Enable plugin at project level. Now you will see "Issue report" tab at the project menu.
