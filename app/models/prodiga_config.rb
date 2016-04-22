@@ -1,7 +1,6 @@
 class ProdigaConfig
-  attr_accessor :locale, :severity_number, :severity_name, :status_closed,
-                :status_suspended, :daily_hours, :inverval_hours, :break_time,
-                :closing_time
+  attr_accessor :locale, :severity_number, :severity_name, :status_suspended,
+                :daily_hours, :inverval_hours, :break_time, :closing_time
 
   def initialize
     @config_file = File.dirname(__FILE__) + "/../../config/config.yml"
@@ -17,7 +16,6 @@ class ProdigaConfig
         @locale = config['locale']
         @severity_number = config['severity']['number']
         @severity_name = config['severity']['name']
-        @status_closed = config['status']['closed']
         @status_suspended = config['status']['suspended']
         @daily_hours = config['hours']['daily']
         @inverval_hours = config['hours']['interval']

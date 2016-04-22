@@ -98,7 +98,7 @@
           <td class="subject"><%= link_to issue.subject, issue_path(issue) %></td>
           <td><%= issue.status %></td>
           <td><%= format_date(issue.created_on) %></td>
-          <td><%= format_date(issue.due_date) %></td>
+          <td><%= format_date(@resolved_details[:last_date][issue.id]) %></td>
           <td><%= @resolved_details[:hours][issue.id] %></td>
           <!--<td class="subject"><%#= @resolved_details[:histories][issue.id].to_s.html_safe %></td>-->
         </tr>

@@ -65,7 +65,7 @@ class ProdigaIssueReport < ActiveRecord::Base
   end
 
   def self.details(issues)
-    issue_status, histories, hours = {}, {}, {}
+    issue_status, histories, hours, last_date = {}, {}, {}, {}
 
     IssueStatus.all.each { |issue| issue_status[issue.id.to_s] = issue.name }
 
@@ -105,10 +105,12 @@ class ProdigaIssueReport < ActiveRecord::Base
         end
 
         hours[issue.id] = time.hour_formatted
+
+        last_date[issue.id] = journals.last.created_on
       end
     end
 
-    {hours: hours, histories: histories}
+    {hours: hours, histories: histories, last_date: last_date}
   end
 
   def self.hours_period(start_date, due_date)
@@ -154,6 +156,9 @@ class ProdigaIssueReport < ActiveRecord::Base
   end
 
   def self.calculate_time(first, last, first_status = '')
+    issue_status_closed = []
+    IssueStatus.where(is_closed: true).each { |status| issue_status_closed << status.name }
+
     discount = 0.0
     time = hours_period(first, last)
 
@@ -165,7 +170,7 @@ class ProdigaIssueReport < ActiveRecord::Base
       discount += @@config.inverval_hours.to_f if first_time.to_i < @@config.break_time.to_i
     else
       if first_time.to_i < @@config.closing_time
-        if first_status.downcase == @@config.status_closed
+        if !first_status.blank? && issue_status_closed.join(', ').include?(first_status)
           time = subtract_time(first_time, @@config.daily_hours.to_f)
         else
           discount = sum_time(discount, subtract_time(@@config.closing_time.to_f, first_time))

@@ -3,7 +3,6 @@ severity:
   number: 5
   name: Grau de severidade
 status:
-  closed: fechada
   suspended: suspensa
 hours:
   daily: 8
