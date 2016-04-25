@@ -98,6 +98,8 @@ class ProdigaIssueReport < ActiveRecord::Base
           break unless date_closed.nil?
         end
 
+        date_closed = journals.last.created_on if date_closed.nil?
+
         time = calculate_time(issue.created_on, date_closed)
 
         journals.each do |journal|
