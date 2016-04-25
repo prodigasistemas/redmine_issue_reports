@@ -3,6 +3,10 @@
 <div class="box tabular">
   <%= form_tag project_issue_reports_path do %>
     <p>
+      <%= label_tag(:issue_reports_type, "Tipo") %>
+    </p>
+
+    <p>
       <%= label_tag(:issue_reports_start_date, "Data inicial") %>
       <%= text_field_tag(:issue_reports_start_date, params[:issue_reports_start_date], size: 10, required: true) %>
       <%= calendar_for('issue_reports_start_date') %>

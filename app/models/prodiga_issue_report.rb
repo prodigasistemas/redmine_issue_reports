@@ -66,6 +66,7 @@ class ProdigaIssueReport < ActiveRecord::Base
 
   def self.details(issues)
     issue_status, histories, hours, last_date = {}, {}, {}, {}
+    issue_status_closed = status_closed(:id)
 
     IssueStatus.all.each { |issue| issue_status[issue.id.to_s] = issue.name }
 
@@ -75,11 +76,19 @@ class ProdigaIssueReport < ActiveRecord::Base
                       .order(:created_on)
       if !journals.blank?
         details = ''
-        suspended_starting_date = nil
+        suspended_starting_date, date_closed = nil, nil
 
-        first_status = issue_status[journals.first.details.first.value]
+        journals.each do |journal|
+          journal.details.each do |detail|
+            if issue_status_closed.join(', ').include?(detail.value)
+              date_closed = journal.created_on
+              break
+            end
+          end
+          break unless date_closed.nil?
+        end
 
-        time = calculate_time(issue.created_on, journals.last.created_on, first_status)
+        time = calculate_time(issue.created_on, date_closed)
 
         journals.each do |journal|
           journal.details.each do |detail|
@@ -106,7 +115,7 @@ class ProdigaIssueReport < ActiveRecord::Base
 
         hours[issue.id] = time.hour_formatted
 
-        last_date[issue.id] = journals.last.created_on
+        last_date[issue.id] = date_closed
       end
     end
 
@@ -155,10 +164,7 @@ class ProdigaIssueReport < ActiveRecord::Base
     "#{hours}.#{minutes}".to_f
   end
 
-  def self.calculate_time(first, last, first_status = '')
-    issue_status_closed = []
-    IssueStatus.where(is_closed: true).each { |status| issue_status_closed << status.name }
-
+  def self.calculate_time(first, last)
     discount = 0.0
     time = hours_period(first, last)
 
@@ -167,14 +173,10 @@ class ProdigaIssueReport < ActiveRecord::Base
 
     if first.to_date == last.to_date
       time = subtract_time(last_time, first_time)
-      discount += @@config.inverval_hours.to_f if first_time.to_i < @@config.break_time.to_i
+      discount += @@config.inverval_hours.to_f if first_time.to_i < @@config.break_time.to_i && time > @@config.inverval_hours.to_f
     else
       if first_time.to_i < @@config.closing_time
-        if !first_status.blank? && issue_status_closed.join(', ').include?(first_status)
-          time = subtract_time(first_time, @@config.daily_hours.to_f)
-        else
-          discount = sum_time(discount, subtract_time(@@config.closing_time.to_f, first_time))
-        end
+        discount = sum_time(discount, subtract_time(@@config.closing_time.to_f, first_time))
       end
 
       discount = sum_time(discount, subtract_time(@@config.closing_time.to_f, last_time)) if last_time.to_i < @@config.closing_time.to_i
@@ -182,6 +184,10 @@ class ProdigaIssueReport < ActiveRecord::Base
     end
 
     subtract_time(time, discount)
+  end
+
+  def self.status_closed(field)
+    IssueStatus.where(is_closed: true).pluck(field)
   end
 end
 
