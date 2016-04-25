@@ -12,7 +12,8 @@ class IssueReportsController < ApplicationController
     @results = ProdigaIssueReport.summary(
       @project.id,
       params[:issue_reports_start_date],
-      params[:issue_reports_due_date]
+      params[:issue_reports_due_date],
+      params[:issue_reports_tracker]
     )
 
     @resolved_issues = issues_list('due_date', true)
@@ -34,7 +35,8 @@ class IssueReportsController < ApplicationController
       is_closed,
       @project.id,
       params[:issue_reports_start_date],
-      params[:issue_reports_due_date]
+      params[:issue_reports_due_date],
+      params[:issue_reports_tracker]
     )
   end
 end

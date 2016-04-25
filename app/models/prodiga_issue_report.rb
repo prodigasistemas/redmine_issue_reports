@@ -9,11 +9,11 @@ class ProdigaIssueReport < ActiveRecord::Base
 
   @@config = ProdigaConfig.new
 
-  def self.summary(project_id, start_date, due_date)
-    process_summary(project_id, start_date, due_date)
+  def self.summary(project_id, start_date, due_date, tracker_id)
+    process_summary(project_id, start_date, due_date, tracker_id)
   end
 
-  def self.process_summary(project_id, start_date, due_date)
+  def self.process_summary(project_id, start_date, due_date, tracker_id)
     occurrences = {}
 
     1.upto(@@config.severity_number.to_i) do |severity|
@@ -21,7 +21,7 @@ class ProdigaIssueReport < ActiveRecord::Base
     end
 
     {'start_date' => false, 'due_date' => true}.each do |filter, is_closed|
-      results = get_summary(filter, is_closed, project_id, start_date, due_date)
+      results = get_summary(filter, is_closed, project_id, start_date, due_date, tracker_id)
 
       results.each do |result|
         severity = result['severity'].to_i
@@ -35,32 +35,40 @@ class ProdigaIssueReport < ActiveRecord::Base
     occurrences
   end
 
-  def self.get_summary(filter, is_closed, project_id, start_date, due_date)
+  def self.get_summary(filter, is_closed, project_id, start_date, due_date, tracker_id)
+    tracker = tracker_id.blank? ? '!=' : '='
+
     query = ActiveRecord::Base.sanitize_sql_array(
       ["SELECT cv.value AS severity, ist.name AS status, count(*) AS count
         FROM issues AS i
         INNER JOIN issue_statuses AS ist ON (ist.id = i.status_id)
         INNER JOIN custom_values AS cv ON (cv.customized_id = i.id)
         INNER JOIN custom_fields AS cf ON (cf.id = cv.custom_field_id)
+        INNER JOIN trackers AS tra ON (tra.id = i.tracker_id)
         WHERE i.project_id = ? AND cf.name = '#{@@config.severity_name}' AND
-        i.#{filter} BETWEEN ? AND ? AND ist.is_closed = ? AND cv.value != ''
+        i.#{filter} BETWEEN ? AND ? AND ist.is_closed = ? AND cv.value != '' AND
+        tra.id #{tracker} ?
         GROUP BY cv.value, ist.name
-        ORDER BY cv.value", project_id, start_date, due_date, is_closed])
+        ORDER BY cv.value", project_id, start_date, due_date, is_closed, tracker_id])
 
     ActiveRecord::Base.connection.select_all(query)
   end
 
-  def self.list(filter, is_closed, project_id, start_date, due_date)
+  def self.list(filter, is_closed, project_id, start_date, due_date, tracker_id)
+    tracker = tracker_id.blank? ? '!=' : '='
+
     query = ActiveRecord::Base.sanitize_sql_array(
       ["SELECT i.*, cv.value AS severity, ist.name AS status
         FROM issues AS i
         INNER JOIN issue_statuses AS ist ON (ist.id = i.status_id)
         INNER JOIN custom_values AS cv ON (cv.customized_id = i.id)
         INNER JOIN custom_fields AS cf ON (cf.id = cv.custom_field_id)
+        INNER JOIN trackers AS tra ON (tra.id = i.tracker_id)
         WHERE i.project_id = ? AND cf.name = '#{@@config.severity_name}' AND
-        i.#{filter} BETWEEN ? AND ? AND ist.is_closed = ? AND cv.value != ''
+        i.#{filter} BETWEEN ? AND ? AND ist.is_closed = ? AND cv.value != '' AND
+        tra.id #{tracker} ?
         ORDER BY cv.value, i.#{filter}",
-        project_id, start_date, due_date, is_closed])
+        project_id, start_date, due_date, is_closed, tracker_id])
     Issue.find_by_sql(query)
   end
 

@@ -3,7 +3,8 @@
 <div class="box tabular">
   <%= form_tag project_issue_reports_path do %>
     <p>
-      <%= label_tag(:issue_reports_type, "Tipo") %>
+      <%= label_tag(:issue_reports_tracker, "Tipo") %>
+      <%= select_tag "issue_reports_tracker", options_from_collection_for_select(@project.trackers, "id", "name", params[:issue_reports_tracker]), include_blank: true %>
     </p>
 
     <p>
@@ -88,11 +89,11 @@
         <tr>
           <th>Severidade</th>
           <th>Assunto</th>
+          <th>Tipo</th>
           <th>Estado</th>
           <th>Abertura</th>
           <th>Encerramento</th>
           <th>Tempo decorrido (hs)</th>
-          <!--<th>Histórico</th>-->
         </tr>
       </thead>
       <tbody>
@@ -100,11 +101,11 @@
         <tr class="<%= cycle("odd", "even") %>">
           <td><%= issue.severity %></td>
           <td class="subject"><%= link_to issue.subject, issue_path(issue) %></td>
+          <td><%= issue.tracker.name %></td>
           <td><%= issue.status %></td>
           <td><%= format_date(issue.created_on) %></td>
           <td><%= format_date(@resolved_details[:last_date][issue.id]) %></td>
           <td><%= @resolved_details[:hours][issue.id] %></td>
-          <!--<td class="subject"><%#= @resolved_details[:histories][issue.id].to_s.html_safe %></td>-->
         </tr>
       <% end %>
       </tbody>
@@ -120,10 +121,9 @@
         <tr>
           <th>Severidade</th>
           <th>Assunto</th>
+          <th>Tipo</th>
           <th>Estado</th>
           <th>Abertura</th>
-          <!--<th>Horas</th>-->
-          <!--<th>Histórico</th>-->
         </tr>
       </thead>
       <tbody>
@@ -131,10 +131,9 @@
         <tr class="<%= cycle("odd", "even") %>">
           <td><%= issue.severity %></td>
           <td class="subject"><%= link_to issue.subject, issue_path(issue) %></td>
+          <td><%= issue.tracker.name %></td>
           <td><%= issue.status %></td>
           <td><%= format_date(issue.created_on) %></td>
-          <!--<td><%#= @unresolved_details[:hours][issue.id] %></td>-->
-          <!--<td class="subject"><%#= @unresolved_details[:histories][issue.id].to_s.html_safe %></td>-->
         </tr>
       <% end %>
       </tbody>
