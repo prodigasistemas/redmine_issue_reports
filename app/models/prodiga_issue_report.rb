@@ -37,6 +37,7 @@ class ProdigaIssueReport < ActiveRecord::Base
 
   def self.get_summary(filter, is_closed, project_id, start_date, due_date, tracker_id)
     tracker = tracker_id.blank? ? '!=' : '='
+    tracker_id = 0 if tracker_id.blank?
 
     query = ActiveRecord::Base.sanitize_sql_array(
       ["SELECT cv.value AS severity, ist.name AS status, count(*) AS count
@@ -56,6 +57,7 @@ class ProdigaIssueReport < ActiveRecord::Base
 
   def self.list(filter, is_closed, project_id, start_date, due_date, tracker_id)
     tracker = tracker_id.blank? ? '!=' : '='
+    tracker_id = 0 if tracker_id.blank?
 
     query = ActiveRecord::Base.sanitize_sql_array(
       ["SELECT i.*, cv.value AS severity, ist.name AS status
