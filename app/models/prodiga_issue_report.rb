@@ -90,7 +90,7 @@ class ProdigaIssueReport < ActiveRecord::Base
 
         journals.each do |journal|
           journal.details.each do |detail|
-            if issue_status_closed.join(', ').include?(detail.value)
+            if issue_status_closed.include?(detail.value.to_i)
               date_closed = journal.created_on
               break
             end
@@ -125,7 +125,7 @@ class ProdigaIssueReport < ActiveRecord::Base
           histories[issue.id] = details
         end
 
-        hours[issue.id] = time.hour_formatted
+        hours[issue.id] = time
 
         last_date[issue.id] = date_closed
       end
@@ -135,10 +135,10 @@ class ProdigaIssueReport < ActiveRecord::Base
   end
 
   def self.hours_period(start_date, due_date)
-    hours = 0.0
+    hours = "00:00"
     (start_date.to_date..due_date.to_date).each do |date|
       if !date.saturday? && !date.sunday? && !date.holiday?(@@config.locale.to_sym)
-        hours += @@config.daily_hours.to_f
+        hours = sum_time(hours, @@config.daily_hours)
       end
     end
     hours
@@ -157,7 +157,7 @@ class ProdigaIssueReport < ActiveRecord::Base
 
     hours = minuend[0] - subtrahend[0]
 
-    "#{hours}.#{minutes}".to_f
+    "%02d:%02d" % [hours, minutes]
   end
 
   def self.sum_time(value1, value2)
@@ -173,29 +173,32 @@ class ProdigaIssueReport < ActiveRecord::Base
 
     hours = value_a[0] + value_b[0]
 
-    "#{hours}.#{minutes}".to_f
+    "%02d:%02d" % [hours, minutes]
   end
 
   def self.calculate_time(first, last)
-    discount = 0.0
     time = hours_period(first, last)
 
-    first_time = "#{first.to_time.hour}.#{first.to_time.min}".to_f
-    last_time = "#{last.to_time.hour}.#{last.to_time.min}".to_f
+    first_time = "%02d:%02d" % [first.to_time.hour, first.to_time.min]
+    last_time  = "%02d:%02d" % [last.to_time.hour, last.to_time.min]
 
     if first.to_date == last.to_date
       time = subtract_time(last_time, first_time)
-      discount += @@config.inverval_hours.to_f if first_time.to_i < @@config.break_time.to_i && time > @@config.inverval_hours.to_f
-    else
-      if first_time.to_i < @@config.closing_time
-        discount = sum_time(discount, subtract_time(@@config.closing_time.to_f, first_time))
-      end
 
-      discount = sum_time(discount, subtract_time(@@config.closing_time.to_f, last_time)) if last_time.to_i < @@config.closing_time.to_i
-      discount += @@config.inverval_hours.to_f if last_time.to_i < @@config.break_time.to_i
+      time = subtract_time(time, @@config.inverval_hours) if first_time.to_i < @@config.break_time.to_i && time.to_i > @@config.inverval_hours.to_f
+    else
+      time = subtract_time(time, "16:00") if time.to_i >= 16
+
+      time = sum_time(time, subtract_time(@@config.closing_time, first_time)) if first_time.to_i < @@config.closing_time.to_i
+
+      time = subtract_time(time, @@config.inverval_hours) if first_time.to_i < @@config.break_time.to_i
+
+      time = sum_time(time, subtract_time(last_time, @@config.start_time)) if last_time.to_i < @@config.closing_time.to_i
+
+      time = subtract_time(time, @@config.inverval_hours) if last_time.to_i > @@config.break_time.to_i
     end
 
-    subtract_time(time, discount)
+    time
   end
 
   def self.status_closed(field)
@@ -203,23 +206,11 @@ class ProdigaIssueReport < ActiveRecord::Base
   end
 end
 
-class Float
-  def hour_formatted
-    hour = self
-
-    hour = 0.0 if hour.to_s.blank?
-
-    hour_array = hour.to_s.split('.')
-
-    "%02d:%02d" % [hour_array[0].to_i, hour_array[1].to_i]
-  end
-
+class String
   def to_integer_array
-    result = self.to_s.split('.')
+    result = self.to_s.split(':')
 
     0.upto(1) {|i| result[i] = result[i].to_i}
-
-    result[1] = result[1] * 10 if result[1] <= 5
 
     result
   end
