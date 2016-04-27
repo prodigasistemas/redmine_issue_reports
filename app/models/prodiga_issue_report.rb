@@ -193,9 +193,13 @@ class ProdigaIssueReport < ActiveRecord::Base
 
       time = subtract_time(time, @@config.inverval_hours) if first_time.to_i < @@config.break_time.to_i
 
-      time = sum_time(time, subtract_time(last_time, @@config.start_time)) if last_time.to_i < @@config.closing_time.to_i
+      if last_time.to_i < @@config.closing_time.to_i
+        time = sum_time(time, subtract_time(last_time, @@config.start_time))
 
-      time = subtract_time(time, @@config.inverval_hours) if last_time.to_i > @@config.break_time.to_i
+        time = subtract_time(time, @@config.inverval_hours) if last_time.to_i > @@config.break_time.to_i
+      else
+        time = sum_time(time, "08:00")
+      end
     end
 
     time
