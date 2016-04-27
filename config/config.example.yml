@@ -8,4 +8,5 @@ hours:
   daily: 8
   interval: 2
   break_time: 12
+  start_time: 8
   closing_time: 18
