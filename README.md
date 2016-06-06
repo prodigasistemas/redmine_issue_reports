@@ -21,9 +21,15 @@ you can do so by changing into your plugin directory and issuing a command like
         cd #{RAILS_ROOT}/plugins/redmine_issue_reports
 
         cp config/config.example.yml config/config.yml
+        
+5. Update redmine with custom fields
 
-5. Restart Redmine
+        cd update-redmine
 
-6. Go to one of your project settings. Click on the Modules tab.
+        bash update-redmine.sh
+
+6. Restart Redmine
+
+7. Go to one of your project settings. Click on the Modules tab.
 You should see the "Issue reports" module at the end of the modules list.
 Enable plugin at project level. Now you will see "Issue report" tab at the project menu.
