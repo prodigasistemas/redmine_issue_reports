@@ -8,13 +8,15 @@ you can do so by changing into your plugin directory and issuing a command like
 
         git clone git://github.com/prodigasistemas/redmine_issue_reports.git
 
-2. Put in your Gemfile.local
+2. Put in your #{RAILS_ROOT}/Gemfile.local
         gem 'holidays'
 
 3. Update your gems
         bundle install
 
 4. Copy config file
+        cd #{RAILS_ROOT}/plugins/redmine_issue_reports
+
         cp config/config.example.yml config/config.yml
 
 5. Restart Redmine
