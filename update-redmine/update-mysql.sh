@@ -1,3 +1,3 @@
 #!/bin/bash
 
-mysql -u redmine -predmine redmine < mysql_config.sql
+MYSQL_PWD=redmine mysql -u redmine redmine < mysql_config.sql
