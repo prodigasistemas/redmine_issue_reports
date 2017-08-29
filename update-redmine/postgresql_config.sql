@@ -2,7 +2,7 @@
 INSERT INTO "settings" ("name", "value", "updated_on") VALUES ('default_language', 'pt-BR', '2016-06-06 16:01:25');
 INSERT INTO "settings" ("name", "value", "updated_on") VALUES ('force_default_language_for_anonymous', '1', '2016-06-06 16:01:25');
 INSERT INTO "settings" ("name", "value", "updated_on") VALUES ('force_default_language_for_loggedin', '1', '2016-06-06 16:01:26');
-INSERT INTO "settings" ("name", "value", "updated_on") VALUES ('default_projects_modules',E'---  \n  - issue_tracking  \n  - time_tracking  \n  - news  \n  - documents  \n  - files  \n  - wiki  \n  - repository  \n  - boards  \n  - calendar  \n  - gantt  \n  - agile  \n  ','2016-02-26 11:55:04'),
+INSERT INTO "settings" ("name", "value", "updated_on") VALUES ('default_projects_modules',E'---  \n  - issue_tracking  \n  - time_tracking  \n  - news  \n  - documents  \n  - files  \n  - wiki  \n  - repository  \n  - boards  \n  - calendar  \n  - gantt  \n  - agile  \n  ','2016-02-26 11:55:04');
 
 -- Tipos
 UPDATE "trackers" SET "name" = 'Defeito' WHERE "trackers"."id" = 1;
