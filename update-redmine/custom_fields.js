@@ -15,6 +15,8 @@ var campoCriticidade      = '#issue_custom_field_values_5';
 var campoComplexidade     = '#issue_custom_field_values_6';
 var campoGrauDeSeveridade = '#issue_custom_field_values_7';
 var campoTempoEstimado    = '#issue_estimated_hours';
+var campoEstado           = '#issue_status_id';
+var campoDataDeFim        = '#issue_due_date';
 
 $(document).ready(function() {
   $(campoCriticidade).keyup(function(e) {
@@ -39,6 +41,16 @@ $(document).ready(function() {
 
   $(campoAfetaReceita).click(function(e) {
     defineAltoGrauDeSeveridade($(this));
+  });
+
+  $(campoEstado).keyup(function(e) {
+    e.preventDefault();
+    dataFinalDaTarefa();
+  });
+
+  $(campoEstado).click(function(e) {
+    e.preventDefault();
+    dataFinalDaTarefa();
   });
 });
 
@@ -83,4 +95,18 @@ var defineTempoEstimado = function() {
   tempoEstimadoEmHoras = { 1: 30, 2: 24, 3: 18, 4: 12, 5: 6 }
 
   $(campoTempoEstimado).val( tempoEstimadoEmHoras[ $(campoGrauDeSeveridade).val() ] );
+}
+
+var dataFinalDaTarefa = function() {
+  nomeEstado = $(campoEstado + ' option:selected').text();
+
+  if (nomeEstado == 'Fechado') {
+    $(campoDataDeFim).val(obterDataAtual());
+  }
+}
+
+var obterDataAtual = function() {
+  hoje = new Date(Date.now()).toLocaleString();
+
+  return hoje.substring(6, 10) + '-' + hoje.substring(3, 5) + '-' + hoje.substring(0, 2);
 }
