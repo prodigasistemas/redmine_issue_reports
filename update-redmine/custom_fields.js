@@ -100,8 +100,10 @@ var defineTempoEstimado = function() {
 var dataFinalDaTarefa = function() {
   nomeEstado = $(campoEstado + ' option:selected').text();
 
-  if (nomeEstado == 'Fechado' || nomeEstado == 'Fechada') {
-    $(campoDataDeFim).val(obterDataAtual());
+  if ($(campoDataDeFim).val() == '') {
+    if (nomeEstado == 'Fechado' || nomeEstado == 'Fechada') {
+      $(campoDataDeFim).val(obterDataAtual());
+    }
   }
 }
 
