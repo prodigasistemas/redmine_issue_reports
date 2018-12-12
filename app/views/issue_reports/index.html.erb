@@ -9,14 +9,12 @@
 
     <p>
       <%= label_tag(:issue_reports_start_date, "Data inicial") %>
-      <%= text_field_tag(:issue_reports_start_date, params[:issue_reports_start_date], size: 10, required: true) %>
-      <%= calendar_for('issue_reports_start_date') %>
+      <%= date_field_tag(:issue_reports_start_date, params[:issue_reports_start_date], size: 10, required: true) %>
     </p>
 
     <p>
       <%= label_tag(:issue_reports_due_date, "Data final") %>
-      <%= text_field_tag(:issue_reports_due_date, params[:issue_reports_due_date], size: 10, required: true) %>
-      <%= calendar_for('issue_reports_due_date') %>
+      <%= date_field_tag(:issue_reports_due_date, params[:issue_reports_due_date], size: 10, required: true) %>
     </p>
 
     <p><%= submit_tag("Gerar relatório") %></p>
@@ -142,4 +140,3 @@
   <% end %>
 <% end %>
 
-<% include_calendar_headers_tags %>
